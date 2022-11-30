@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class PricingServiceApplicationTests {
 	@LocalServerPort
