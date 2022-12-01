@@ -4,9 +4,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +32,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * Implements testing of the CarController class.
@@ -96,7 +96,10 @@ public class CarControllerTest {
          *   the whole list of vehicles. This should utilize the car from `getCar()`
          *   below (the vehicle will be the first in the list).
          */
-
+        createCar();
+        MvcResult result = mvc.perform(get(new URI("/cars"))).andExpect(status().isOk()).andDo(print()).andReturn();
+        String listCars = result.getResponse().getContentAsString();
+        System.out.printf(listCars);
     }
 
     /**
@@ -109,6 +112,10 @@ public class CarControllerTest {
          * TODO: Add a test to check that the `get` method works by calling
          *   a vehicle by ID. This should utilize the car from `getCar()` below.
          */
+        createCar();
+        MvcResult result = mvc.perform(get(new URI("/cars/1"))).andExpect(status().isOk()).andDo(print()).andReturn();
+        String cars = result.getResponse().getContentAsString();
+        System.out.printf(cars);
     }
 
     /**
@@ -122,6 +129,18 @@ public class CarControllerTest {
          *   when the `delete` method is called from the Car Controller. This
          *   should utilize the car from `getCar()` below.
          */
+        createCar();
+        this.mvc.perform(delete(new URI("/cars/1"))).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void putCar() throws Exception {
+        Car newCar = getCar();
+        newCar.setLocation(new Location(40.730610, -73.935242));
+        mvc.perform(put(new URI("/cars/1")).content(json.write(newCar).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
     }
 
     /**
